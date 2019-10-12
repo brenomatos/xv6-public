@@ -41,6 +41,7 @@ struct proc {
   char *kstack;                // Bottom of kernel stack for this process
   enum procstate state;        // Process state
   int pid;                     // Process ID
+  int priority;
   struct proc *parent;         // Parent process
   struct trapframe *tf;        // Trap frame for current syscall
   struct context *context;     // swtch() here to run process
@@ -49,6 +50,10 @@ struct proc {
   struct file *ofile[NOFILE];  // Open files
   struct inode *cwd;           // Current directory
   char name[16];               // Process name (debugging)
+  uint ctime; // Tempo quando o processo foi criado
+  int stime; //Tempo SLEEPING
+  int retime; //Tempo READY(RUNNABLE) time
+  int rutime; // Tempo executando (RUNNING)
 };
 
 // Process memory is laid out contiguously, low addresses first:

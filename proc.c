@@ -20,6 +20,32 @@ extern void trapret(void);
 
 static void wakeup1(void *chan);
 
+//wait2
+int 
+wait2(int* retime, int* rutime, int* stime)
+{
+  return 0;
+}
+
+//change priority
+int
+set_prio(  int priority )
+{
+  int pid;
+  struct proc *p;
+  struct proc *curproc = myproc();
+  pid = curproc->pid;  
+  acquire(&ptable.lock);
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if(p->pid == pid ) {
+        p->priority = priority;
+        release(&ptable.lock);
+        return 0;
+    }
+  }
+  return -1;
+}
+
 void
 pinit(void)
 {
@@ -198,6 +224,7 @@ fork(void)
   }
   np->sz = curproc->sz;
   np->parent = curproc;
+  np->priority = 2;
   *np->tf = *curproc->tf;
 
   // Clear %eax so that fork returns 0 in the child.
