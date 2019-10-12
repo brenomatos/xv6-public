@@ -114,7 +114,7 @@ allocproc(void)
 found:
   p->state = EMBRYO;
   p->pid = nextpid++;
-
+  p->ticks = 0;
   release(&ptable.lock);
 
   // Allocate kernel stack.
@@ -369,10 +369,27 @@ scheduler(void)
       for(p1 = ptable.proc; p1 < &ptable.proc[NPROC]; p1++){
         if(p1->state != RUNNABLE)
           continue;
-        if ( highP->priority > p1->priority )   // larger value, lower priority 
+
+        //VERIFICAR SE PRIORIDADE MAIOR OU MENOR TEM DE ALTERARE
+        if ( highP->priority < p1->priority )   // larger value, lower priority 
           highP = p1;
       }
       p = highP;
+
+      for(p1 = ptable.proc; p1 < &ptable.proc[NPROC]; p1++){
+        if(p1->state == RUNNABLE && p1->pid != p->pid){
+          p1->ticks++;
+          if(p1->priority == 1 && p1->ticks > T1TO2){
+            p1->priority = 2;
+            p1->ticks = 0;
+          }
+          if(p1->priority == 2 && p1->ticks > T2TO3){
+              p1->priority = 3;
+              p1->ticks = 0;
+          }
+        }
+      }
+
       // Switch to chosen process.  It is the process's job
       // to release ptable.lock and then reacquire it
       // before jumping back to us.
