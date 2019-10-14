@@ -115,6 +115,11 @@ found:
   p->state = EMBRYO;
   p->pid = nextpid++;
   p->ticks = 0;
+
+  p->ctime = ticks;
+  p->stime = 0;
+  p->retime = 0;
+  p->rutime = 0;
   release(&ptable.lock);
 
   // Allocate kernel stack.
