@@ -9,6 +9,7 @@
     ret
 
 SYSCALL(wait2)
+SYSCALL(yield)
 SYSCALL(set_prio)
 SYSCALL(fork)
 SYSCALL(exit)

@@ -20,11 +20,79 @@ extern void trapret(void);
 
 static void wakeup1(void *chan);
 
+//update_time
+void update_time(){
+  struct proc *p;
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if (p->state == RUNNABLE)
+    {
+      p->retime++;
+    }
+    if (p->state == RUNNING)
+    {
+      p->rutime++;
+    }
+    if (p->state == SLEEPING)
+    {
+      p->stime++;
+    }
+    
+     
+  }
+}
 //wait2
 int 
 wait2(int* retime, int* rutime, int* stime)
 {
-  return 0;
+
+  // *retime = 7;
+  // *rutime = 5;
+  // *stime = 200;
+
+
+  struct proc *p;
+  int havekids, pid;
+  struct proc *curproc = myproc();
+  
+  *retime = curproc->retime;
+  *rutime = curproc->rutime;
+  *stime = curproc->stime;
+
+  acquire(&ptable.lock);
+  for(;;){
+    // Scan through table looking for exited children.
+    havekids = 0;
+    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+      if(p->parent != curproc)
+        continue;
+      havekids = 1;
+      if(p->state == ZOMBIE){
+        // Found one.
+        pid = p->pid;
+        kfree(p->kstack);
+        p->kstack = 0;
+        freevm(p->pgdir);
+        p->pid = 0;
+        p->parent = 0;
+        p->name[0] = 0;
+        p->killed = 0;
+        p->state = UNUSED;
+        // *retime = p->retime;
+        // *rutime = p->rutime;
+        // *stime = p->stime;
+        release(&ptable.lock);
+        return pid;
+      }
+    }
+
+    // No point waiting if we don't have any children.
+    if(!havekids || curproc->killed){
+      release(&ptable.lock);
+      return -1;
+    }
+    // Wait for children to exit.  (See wakeup1 call in proc_exit.)
+    sleep(curproc, &ptable.lock);  //DOC: wait-sleep
+  }
 }
 
 //change priority

@@ -11,6 +11,7 @@
 // Interrupt descriptor table (shared by all CPUs).
 struct gatedesc idt[256];
 extern uint vectors[];  // in vectors.S: array of 256 entry pointers
+extern void update_time();
 struct spinlock tickslock;
 uint ticks;
 
@@ -51,6 +52,7 @@ trap(struct trapframe *tf)
     if(cpuid() == 0){
       acquire(&tickslock);
       ticks++;
+      update_time();
       wakeup(&ticks);
       release(&tickslock);
     }
