@@ -44,12 +44,6 @@ void update_time(){
 int 
 wait2(int* retime, int* rutime, int* stime)
 {
-
-  // *retime = 7;
-  // *rutime = 5;
-  // *stime = 200;
-
-
   struct proc *p;
   int havekids, pid;
   struct proc *curproc = myproc();
@@ -77,9 +71,6 @@ wait2(int* retime, int* rutime, int* stime)
         p->name[0] = 0;
         p->killed = 0;
         p->state = UNUSED;
-        // *retime = p->retime;
-        // *rutime = p->rutime;
-        // *stime = p->stime;
         release(&ptable.lock);
         return pid;
       }
